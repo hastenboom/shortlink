@@ -1,5 +1,6 @@
 package com.hasten.shortlink.admin.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -7,8 +8,11 @@ import com.hasten.shortlink.admin.common.convention.exception.ClientException;
 import com.hasten.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.hasten.shortlink.admin.dao.entity.UserDO;
 import com.hasten.shortlink.admin.dao.mapper.UserMapper;
+import com.hasten.shortlink.admin.dto.req.UserRegisterReqDTO;
 import com.hasten.shortlink.admin.dto.resp.UserRespDTO;
 import com.hasten.shortlink.admin.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.redisson.api.RBloomFilter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +20,10 @@ import org.springframework.stereotype.Service;
  * @author Hasten
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
+
+    private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
 
     @Override
     public UserRespDTO getUserByUsername(String username) {
@@ -32,6 +39,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         BeanUtils.copyProperties(userDO, result);
 
         return result;
+    }
+
+    /**
+     * TODO：这个hasUsername命名和逻辑是相反的，实际上返回的是：true，用户名可用；false，用户已存在，不可用。
+     */
+    @Override
+    public Boolean hasUsername(String username) {
+        return !userRegisterCachePenetrationBloomFilter.contains(username);
+    }
+
+    @Override
+    public void register(UserRegisterReqDTO requestParam) {
+        if (!hasUsername(requestParam.getUsername())) {
+            throw new ClientException(UserErrorCodeEnum.USER_NAME_EXIST);
+        }
+
+        int insert = baseMapper.insert(BeanUtil.toBean(requestParam, UserDO.class));
+        if (insert < 0) {
+            throw new ClientException(UserErrorCodeEnum.USER_SAVE_ERROR);
+        }
+
+        userRegisterCachePenetrationBloomFilter.add(requestParam.getUsername());
     }
 
 }
