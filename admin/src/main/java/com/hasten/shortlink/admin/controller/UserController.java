@@ -28,13 +28,18 @@ public class UserController {
         UserRespDTO result = userService.getUserByUsername(username);
         return Results.success(result);
     }
-
-    @GetMapping("/api/short-link/v1/user/has-username")
+    /**
+     * 查询用户名是否存在
+     */
+    @GetMapping("/api/short-link/admin/v1/user/has-username")
     public Result<Boolean> hasUsername(@RequestParam("username") String username) {
         return Results.success(userService.hasUsername(username));
     }
 
-    @PostMapping("/api/short-link/v1/user")
+    /**
+     * 注册用户
+     */
+    @PostMapping("/api/short-link/admin/v1/user")
     public Result<Void> register(@RequestBody UserRegisterReqDTO requestParam) {
         userService.register(requestParam);
         return Results.success();
