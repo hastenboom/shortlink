@@ -28,6 +28,7 @@ public class UserController {
         UserRespDTO result = userService.getUserByUsername(username);
         return Results.success(result);
     }
+
     /**
      * 查询用户名是否存在
      */
@@ -44,4 +45,15 @@ public class UserController {
         userService.register(requestParam);
         return Results.success();
     }
+
+
+    /**
+     * 修改用户
+     */
+    @PutMapping("/api/short-link/admin/v1/user")
+    public Result<Void> update(@RequestBody UserRegisterReqDTO requestParam) {
+        userService.update(requestParam);
+        return Results.success();
+    }
+
 }

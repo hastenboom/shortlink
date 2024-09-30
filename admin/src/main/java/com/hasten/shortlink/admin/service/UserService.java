@@ -24,4 +24,11 @@ public interface UserService extends IService<UserDO> {
      * @param requestParam
      */
     void register(UserRegisterReqDTO requestParam);
+
+
+    /**
+     * 根据用户名修改用户
+     * @param requestParam
+     */
+    void update( UserRegisterReqDTO requestParam);
 }

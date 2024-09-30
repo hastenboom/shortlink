@@ -2,6 +2,7 @@ package com.hasten.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hasten.shortlink.admin.common.convention.exception.ClientException;
@@ -74,6 +75,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }finally {
             lock.unlock();
         }
+    }
+
+    @Override
+    public void update(UserRegisterReqDTO requestParam) {
+        //TODO: 需要网关添加身份校验，否则李四知道api可以修改张三信息。如果修改人和登陆人信息不一致，当然是干死他！
+        //用的是username的分片
+        LambdaUpdateWrapper<UserDO> eq = Wrappers.lambdaUpdate(UserDO.class)
+                .eq(UserDO::getUsername, requestParam.getUsername());
+        baseMapper.update(BeanUtil.toBean(requestParam, UserDO.class), eq);
+
     }
 
 }
