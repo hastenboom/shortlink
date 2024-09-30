@@ -3,16 +3,21 @@ package com.hasten.shortlink.admin.dao.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.hasten.shortlink.admin.database.BaseDO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.Date;
+import lombok.NoArgsConstructor;
 
 /**
  * @author Hasten
  */
 @Data
 @TableName("t_group")
-public class GroupDO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class GroupDO extends BaseDO {
 
 //    private static final long serialVersionUID = 1L;
 
@@ -37,22 +42,5 @@ public class GroupDO {
      */
     private String username;
 
-    /**
-     * create_time
-     */
-    private Date createTime;
-
-    /**
-     * update_time
-     */
-    private Date updateTime;
-
-    /**
-     * del_flag
-     */
-    private Integer delFlag;
-
-    public GroupDO() {
-
-    }
+    private Integer sortOrder;
 }
